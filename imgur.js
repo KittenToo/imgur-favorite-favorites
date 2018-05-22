@@ -11,7 +11,7 @@ document.body.onload = () => {
     styleEl.innerText = '.Grid-item-image-fav { position: absolute; left: 15px; top: 15px; border-radius:var(--smallBorderRadius); ' +
         ' color: white; background: var(--voyagerDarkGrey); padding: 2px 7px 1px; font-size: 20pt; cursor: pointer; }' +
         '.Grid-item-image-fav.green { color: green; }' +
-        '.Grid-item-image-fav.grey { color: #ccc; }';
+        '.Grid-item-image-fav.grey { color: #999; }';
 
     // Append style element to head
     document.head.appendChild(styleEl);

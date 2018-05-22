@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+
+  "name": "Imgur favorite favorites",
+  "description": "favorite other users favorites easily. this extension adds a heart button to each thumbnail on some users favorite page",
+  "version": "1.1",
+  "author": "Putin",
+  "icons": {
+	   "152": "icon.png"
+  },
+  "applications": {
+    "gecko": {
+      "id": "Putin@russia.org"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+         "*://imgur.com/user/*"
+      ],
+      "js":  ["browser-polyfill.min.js", "mutation-summary.js", "imgur.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "scripts": ["browser-polyfill.min.js", "background.js"]
+  },
+  "permissions": [
+    "activeTab",
+    "cookies",
+    "webRequest",
+    "webRequestBlocking",
+    "*://imgur.com/*",
+    "*://api.imgur.com/*"
+  ]
+}

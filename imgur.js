@@ -70,11 +70,16 @@ function getSID() {
     }).then((e) => {
         //console.log('response: ',e)
         if (e != null) {
-            SID = e;
+            _setSID(e);
             // if SID was retrieved run the first time
             executeScript();
         }
     });
+}
+
+function _setSID(s) {
+    console.log('got SID ', s);
+    SID = s;
 }
 
 // on dom change execute the script
@@ -133,7 +138,7 @@ function getnewSIDbeforeFav(id, el) {
         getSID: true
     }).then((e) => {
         if (e != null) {
-            SID = e;
+            _setSID(e);
             // if SID was retrieved run the first time
             fav(id, el);
         } else {

@@ -5,25 +5,32 @@ if (navigator.userAgent.indexOf("Chrome") < 0) {
     IsChrome = false;
 }
 
-function updateSID() {
-    let sUsrAg = navigator.userAgent;
-    if (IsChrome) {
-        chrome.cookies.getAll({
-            "domain": 'imgur.com'
-        }, function (cookie) {
-            _saveCookie(cookie)
-        });
-    } else {
-        // fire fox needs this firstPartyDomain thing
-        browser.cookies.getAll({
-            "domain": 'imgur.com',
-            "firstPartyDomain": "imgur.com"
-        }).then(function (cookie) {
-            _saveCookie(cookie)
-        });
+function updateSID(callback, cbArgs) {
+    let args = {
+        "domain": 'imgur.com'
+    };
+    // fire fox needs this firstPartyDomain thing
+    if (!IsChrome) {
+        args['firstPartyDomain'] = 'imgur.com';
+    }
+    
+
+    let p = browser.cookies.getAll(args)
+    .then(function (cookie) {
+        _saveCookie(cookie)
+        return Cookie.IMGURUIDLOTAME.value; // for when a promise is returned in messaging. bad design? i guess but its not needed in other places?
+    });
+    // this is a for async sendResponse, because getCookies is async and responding asap will yield old SID
+    if (IsChrome && callback) {
+        console.log(typeof(callback))
+        callback(cbArgs);
+    }
+    else {
+        return p;
     }
 }
 
+// make the array to a dict
 function _saveCookie(cookie) {
     let o = {};
     for (let x in cookie) {
@@ -32,6 +39,7 @@ function _saveCookie(cookie) {
     Cookie = o;
 }
 
+// initialy read out cookies
 updateSID();
 
 // odd bug that using browser polyfill on chrome doesnt find sendresponse
@@ -46,10 +54,20 @@ b.runtime.onMessage.addListener(
             "from the extension: ", request);
 
         if (request.getSID == true) {
-            updateSID(); // TODO async, next line wont have correct cookie 
-            sendResponse(Cookie.IMGURUIDLOTAME.value);
+            if (IsChrome) {
+                updateSID(sendResponse, Cookie.IMGURUIDLOTAME.value);
+                //sendResponse(Cookie.IMGURUIDLOTAME.value);
+            }
+            else { 
+                return updateSID(); // firefox can return a promise instead of sendResponse, where the .then() returns the msg?
+            }
         } else {
-            sendResponse('command not found')
+            if (IsChrome) {
+                sendResponse('command not found');
+            }
+            else {
+                return new Promise(r => resolve('command not found'));
+            }
         }
     }
 );

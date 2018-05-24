@@ -3,6 +3,11 @@
 */
 
 SID = undefined;
+IsChrome = true;
+
+if (navigator.userAgent.indexOf("Chrome") < 0) {
+    IsChrome = false;
+}
 
 document.body.onload = () => {
 
@@ -32,9 +37,9 @@ document.body.onload = () => {
 // listen for list of my favorites from background page
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        /*console.log(sender.tab ?
+        console.log(sender.tab ?
             "from a content script:" + sender.tab.url :
-            "from the extension", request);*/
+            "from the extension", request);
         if ('favorites' in request) {
             parseFavList(request.favorites);
             sendResponse({OK:true});
@@ -144,8 +149,7 @@ function fav(id, el) {
     //  we just try both variants
 
     let xhr = null;
-    let sUsrAg = navigator.userAgent;
-    if (sUsrAg.indexOf("Chrome") < 0) {
+    if (!IsChrome) {
         xhr = new content.XMLHttpRequest(); // firefox
     } else {
         xhr = new XMLHttpRequest(); // chrome
@@ -165,8 +169,7 @@ function fav(id, el) {
     xhr.onload = function () {
         if (xhr.status == 404) {
             let xhr2 = null;
-            let sUsrAg = navigator.userAgent;
-            if (sUsrAg.indexOf("Chrome") < 0) {
+            if (!IsChrome) {
                 xhr2 = new content.XMLHttpRequest();
             } else {
                 xhr2 = new XMLHttpRequest();
@@ -193,8 +196,7 @@ function checkIfUnfavorited(url, response, el, recurse) {
     let fmethod = response.data.fav_method;
     if (fmethod == 'unfavorited') {
         let xhr = null;
-        let sUsrAg = navigator.userAgent;
-        if (sUsrAg.indexOf("Chrome") < 0) {
+        if (!IsChrome) {
             xhr = new content.XMLHttpRequest();
         } else {
             xhr = new XMLHttpRequest();

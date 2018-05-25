@@ -187,19 +187,19 @@ function fav(id, el) {
                 '&location=inside';
             xhr2.send(data);
             xhr2.onload = function () {
-                checkIfUnfavorited('https://imgur.com/a/' + id + '/fav.json', xhr2.response, el);
+                checkResponse('https://imgur.com/a/' + id + '/fav.json', xhr2.response, el);
             }
         } else {
-            checkIfUnfavorited('https://imgur.com/' + id + '/fav.json', xhr.response, el)
+            checkResponse('https://imgur.com/' + id + '/fav.json', xhr.response, el)
         }
     };
 }
 
-// sending the request toggles the favorite state. so if we unfaved by mistake just fav it again
+// if fav_method = confirm, resend XHR
 // recurse set true if it was called recursevily to avoid infite loop
-function checkIfUnfavorited(url, response, el, recurse) {
+function checkResponse(url, response, el, recurse) {
     let fmethod = response.data.fav_method;
-    if (fmethod == 'unfavorited') {
+    if (fmethod == 'confirm') {
         let xhr = null;
         if (!IsChrome) {
             xhr = new content.XMLHttpRequest();
@@ -216,12 +216,18 @@ function checkIfUnfavorited(url, response, el, recurse) {
         xhr.send(data);
         xhr.onload = function () { 
             if (!recurse) {
-                checkIfUnfavorited(url, xhr.response, el, true);
+                checkResponse(url, xhr.response, el, true);
             }
         };
-    } else if (['favorited', 'confirm'].indexOf(fmethod) >= 0) {
+    } else if (fmethod == 'favorited') {
         addClass(el, 'green');
-    } else {
+        removeClass(el, 'grey');
+    } else if (fmethod == 'unfavorited') {
+        removeClass(el, 'green');
+        removeClass(el, 'grey');
+    } 
+    else {
+        removeClass(el, 'green');
         addClass(el, 'grey'); // something went wrong
     }
 }

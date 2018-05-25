@@ -3,7 +3,7 @@
 
   "name": "Imgur favorite favorites",
   "description": "favorite other users favorites easily. this extension adds a heart button to each thumbnail on some users favorite page",
-  "version": "1.1",
+  "version": "1.2",
   "author": "Putin",
   "icons": {
 	   "152": "icon.png"

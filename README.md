@@ -1,6 +1,5 @@
 # imgur-favorite-favorites
 browser extensions which allows to favorite other users favorites easily from the overview.
-it works only to ADD favs, you cant unfav them yet.
 
 # usage in chrome
 im not gonna pay google $5 so i can publish something to the chrome store, so you will have to turn on developer mode and download the sourcecode folder and add it as unpacked extension.

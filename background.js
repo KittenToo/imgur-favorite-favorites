@@ -105,10 +105,40 @@ function chromeListener(details) {
     }
     xhr.send();
     return {};
+
+    
 }
 
-chrome.webRequest.onBeforeSendHeaders.addListener(
-    chromeListener, {
+// firefox does not need to replay the XHR but can access the msg body too
+function firefoxListener(details) {
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+    let decoder = new TextDecoder("utf-8");
+    let encoder = new TextEncoder();
+
+    let fullStr = '';
+
+    filter.ondata = event => {
+        let str = decoder.decode(event.data, {stream: true});
+        fullStr += str;
+        filter.write(encoder.encode(str));
+    }
+    
+    filter.onstop = event => {
+        let o = JSON.parse(fullStr);
+        let x = [];
+        for (let i of o.data) {
+            if (i.favorite) {
+                x.push(i.id)
+            }
+        }
+        console.log('sending message to', details)
+        chrome.tabs.sendMessage(details.tabId, {favorites: x}, function(response) {}); 
+        filter.close();
+    }
+} 
+
+b.webRequest.onBeforeSendHeaders.addListener(
+    IsChrome ? chromeListener : firefoxListener, {
         urls: ["*://api.imgur.com/3/account/*/gallery_favorites/*"],
         types: ["xmlhttprequest"]
     }, ["blocking", "requestHeaders"]
